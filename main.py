@@ -19,6 +19,10 @@ async def send(
     works: str = Form(...),
     phone: str = Form(...)
 ):
+    # Если это "ping", просто вернём успех, не отправляя уведомление
+    if name.strip().lower() == "ping":
+        return {"ok": True, "message": "Ping request received. No notification sent."}
+
     msg = f"""
 📢 <b>НОВАЯ ЗАЯВКА НА СЕРВИС!</b>
 
@@ -31,6 +35,7 @@ async def send(
 
 ⚠️ <b>Требуется срочная обработка!</b>
 """
+
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     chat_id = os.getenv("TELEGRAM_CHAT_ID")
     url = f"https://api.telegram.org/bot{token}/sendMessage"
@@ -42,10 +47,8 @@ async def send(
             "parse_mode": "HTML"
         }, timeout=10)
 
-        # Просто всегда возвращаем ok=True (даже если была ошибка)
         return {"ok": True}
 
     except Exception as e:
-        # Логируем ошибку в консоль
         print("Ошибка при отправке в Telegram:", e)
         return {"ok": True}

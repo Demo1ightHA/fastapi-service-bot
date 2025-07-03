@@ -11,6 +11,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 🔹 Новый эндпоинт для пинга (чтобы сервер не засыпал)
+@app.get("/wakeup")
+async def wakeup():
+    return {"status": "ok"}
+
+# 🔹 Ваш текущий POST-эндпоинт для отправки в Telegram
 @app.post("/send")
 async def send(
     name: str = Form(...),

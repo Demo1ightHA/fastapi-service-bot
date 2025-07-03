@@ -4,7 +4,6 @@ import os, requests, datetime
 
 app = FastAPI()
 
-# Разрешаем запросы с любых источников
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,10 +18,7 @@ async def send(
     works: str = Form(...),
     phone: str = Form(...)
 ):
-    if name.strip().lower() in ["ping", "пинг"]:
-        return {"ok": True, "message": "Ping detected. No notification sent."}
-
-   msg = f"""
+    msg = f"""
 📢 <b>НОВАЯ ЗАЯВКА НА СЕРВИС!</b>
 
 👤 <b>Клиент:</b> {name}
@@ -33,22 +29,20 @@ async def send(
 ⏰ <i>{datetime.datetime.now().strftime('%d.%m.%Y, %H:%M:%S')}</i>
 
 ⚠️ <b>Требуется срочная обработка!</b>
-""".encode('utf-8').decode()
+"""
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     chat_id = os.getenv("TELEGRAM_CHAT_ID")
     url = f"https://api.telegram.org/bot{token}/sendMessage"
 
-   try:
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
-    }
-    response = requests.post(url, data={
-        "chat_id": chat_id,
-        "text": msg,
-        "parse_mode": "HTML"
-    }, headers=headers, timeout=10)
+    try:
+        response = requests.post(url, data={
+            "chat_id": chat_id,
+            "text": msg,
+            "parse_mode": "HTML"
+        }, timeout=10)
 
-    return {"ok": True}
-except Exception as e:
-    print("Ошибка при отправке в Telegram:", e)
-    return {"ok": True}
+        return {"ok": True}
+
+    except Exception as e:
+        print("Ошибка при отправке в Telegram:", e)
+        return {"ok": True}

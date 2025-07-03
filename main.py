@@ -38,13 +38,17 @@ async def send(
     chat_id = os.getenv("TELEGRAM_CHAT_ID")
     url = f"https://api.telegram.org/bot{token}/sendMessage"
 
-    try:
-        requests.post(url, data={
-            "chat_id": chat_id,
-            "text": msg,
-            "parse_mode": "HTML"
-        }, timeout=10)
-        return {"ok": True}
-    except Exception as e:
-        print("Ошибка при отправке в Telegram:", e)
-        return {"ok": True}
+   try:
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
+    }
+    response = requests.post(url, data={
+        "chat_id": chat_id,
+        "text": msg,
+        "parse_mode": "HTML"
+    }, headers=headers, timeout=10)
+
+    return {"ok": True}
+except Exception as e:
+    print("Ошибка при отправке в Telegram:", e)
+    return {"ok": True}

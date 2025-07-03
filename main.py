@@ -4,7 +4,7 @@ import os, requests, datetime
 
 app = FastAPI()
 
-# Разрешаем запросы с любых источников (на всякий случай)
+# Разрешаем запросы с любых источников
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,9 +19,8 @@ async def send(
     works: str = Form(...),
     phone: str = Form(...)
 ):
-    # Если это "ping", просто вернём успех, не отправляя уведомление
-    if name.strip().lower() == "ping":
-        return {"ok": True, "message": "Ping request received. No notification sent."}
+    if name.strip().lower() in ["ping", "пинг"]:
+        return {"ok": True, "message": "Ping detected. No notification sent."}
 
     msg = f"""
 📢 <b>НОВАЯ ЗАЯВКА НА СЕРВИС!</b>
@@ -35,20 +34,17 @@ async def send(
 
 ⚠️ <b>Требуется срочная обработка!</b>
 """
-
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     chat_id = os.getenv("TELEGRAM_CHAT_ID")
     url = f"https://api.telegram.org/bot{token}/sendMessage"
 
     try:
-        response = requests.post(url, data={
+        requests.post(url, data={
             "chat_id": chat_id,
             "text": msg,
             "parse_mode": "HTML"
         }, timeout=10)
-
         return {"ok": True}
-
     except Exception as e:
         print("Ошибка при отправке в Telegram:", e)
         return {"ok": True}
